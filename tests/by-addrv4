@@ -1,0 +1,6 @@
+request=smtpd_access_policy
+sender=a@b.de
+recipient=f@g.hi
+client_name=unknown
+client_address=80.94.32.224
+
