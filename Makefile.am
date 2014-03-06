@@ -1,5 +1,4 @@
 AM_CXXFLAGS = -Wall -Werror
-AM_CPPFLAGS = $(libtdb_CFLAGS) -Isrc
 
 # build a static library with all commonly used functions and classes;
 # this allows easy linking of multiple output binaries as well as the
@@ -16,11 +15,11 @@ pkglibexec_PROGRAMS = tgreylist
 sbin_PROGRAMS = tgreyclean
 
 tgreylist_SOURCES = src/tgreylist.cc
-tgreylist_CPPFLAGS = -DCONFIG_TGREY_DB=\"$(TGREY_DB)\"
+tgreylist_CPPFLAGS = $(libtdb_CFLAGS) -DCONFIG_TGREY_DB=\"$(TGREY_DB)\"
 tgreylist_LDADD = $(libtdb_LIBS) libtgrey.a
 
 tgreyclean_SOURCES = src/tgreyclean.cc
-tgreyclean_CPPFLAGS = -DCONFIG_TGREY_DB=\"$(TGREY_DB)\"
+tgreyclean_CPPFLAGS = $(libtdb_CFLAGS) -DCONFIG_TGREY_DB=\"$(TGREY_DB)\"
 tgreyclean_LDADD = $(libtdb_LIBS) libtgrey.a
 
 # man pages to install
