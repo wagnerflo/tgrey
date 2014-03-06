@@ -243,14 +243,14 @@ namespace slo
 
   inline stage::ptr min_level(const level& (&fun)()) {
     return stage::ptr(new slo_detail::level_cmp_stage
-                            <std::greater_equal<const level&> >
-                            (std::greater_equal<const level&>(), fun()));
+                            <std::greater_equal<const level> >
+                            (std::greater_equal<const level>(), fun()));
   }
 
   inline stage::ptr max_level(const level& (&fun)()) {
     return stage::ptr(new slo_detail::level_cmp_stage
-                            <std::less_equal<const level&> >
-                            (std::less_equal<const level&>(), fun()));
+                            <std::less_equal<const level> >
+                            (std::less_equal<const level>(), fun()));
   }
 }
 

@@ -13,6 +13,7 @@
 
 #include "policy.hh"
 #include <string>
+#include <stdint.h>
 
 namespace tgrey
 {
