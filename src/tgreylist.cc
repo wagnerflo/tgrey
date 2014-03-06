@@ -49,9 +49,9 @@ int main(int argc, const char* argv[]) {
 
   // variables with default values for the commandline options
   std::string   database   = CONFIG_TGREY_DB;
-  unsigned int  delay      = 1440;
-  unsigned int  timeout    = 10080;
-  unsigned int  lifetime   = 21900;
+  unsigned int  delay      =            5 * 60;
+  unsigned int  timeout    =  7 * 24 * 60 * 60;
+  unsigned int  lifetime   = 90 * 24 * 60 * 60;
   unsigned int  v4mask     = 32;
   unsigned int  v6mask     = 128;
   bool          help       = false;
