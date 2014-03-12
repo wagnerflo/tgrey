@@ -11,5 +11,5 @@
 #include "logging.hh"
 
 slo::stage::ptr tgrey::syslog_stage() {
-  return slo::syslog("tgreylist", LOG_DAEMON);
+  return slo::syslog("tgreylist", LOG_MAIL);
 }
