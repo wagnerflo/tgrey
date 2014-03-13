@@ -58,8 +58,7 @@ void tgrey::database::open() {
   }
 }
 
-const bool
-tgrey::database::fetch(const std::string& key, std::string& val) const {
+bool tgrey::database::fetch(const std::string& key, std::string& val) {
   if(!data->ctx)
     throw std::runtime_error("Trying to fetch from unopened TDB database.");
 
@@ -73,13 +72,43 @@ tgrey::database::fetch(const std::string& key, std::string& val) const {
   return true;
 }
 
-const void tgrey::database::store(
-                         const std::string& key, const std::string& value) {
+void tgrey::database::store(const std::string& key, const std::string& val) {
   if(!data->ctx)
     throw std::runtime_error("Trying to store to unopened TDB database.");
 
   if(::tdb_store(data->ctx,
-                 from_string(key), from_string(value), TDB_REPLACE))
+                 from_string(key), from_string(val), TDB_REPLACE))
     throw std::runtime_error(std::string("Error storing to TDB: ") +
                              std::string(::tdb_errorstr(data->ctx)));
+}
+
+void tgrey::database::remove(const std::string& key) {
+  if(!data->ctx)
+    throw std::runtime_error("Trying to delete from unopened TDB database.");
+
+  if(::tdb_delete(data->ctx, from_string(key)))
+    throw std::runtime_error(std::string("Error deleting from TDB: ") +
+                             std::string(::tdb_errorstr(data->ctx)));
+}
+
+struct traverse_callback {
+    tgrey::database& db;
+    tgrey::db_visitor& vi;
+};
+
+inline int
+traverse_helper(TDB_CONTEXT* tdb, TDB_DATA key, TDB_DATA val, void* state) {
+  traverse_callback* cb = static_cast<traverse_callback*>(state);
+  return cb->vi.visit(cb->db,
+                      std::string(key.dptr, key.dptr + key.dsize),
+                      std::string(val.dptr, val.dptr + val.dsize));
+  return 0;
+}
+
+void tgrey::database::traverse(db_visitor& visitor) {
+  if(!data->ctx)
+    throw std::runtime_error("Trying to traverse unopened TDB database.");
+
+  struct traverse_callback cb = { *this, visitor };
+  ::tdb_traverse(data->ctx, traverse_helper, &cb);
 }

@@ -144,7 +144,7 @@ int main(int argc, const char* argv[]) {
          || (tgrey::older_than(lifetime, lastseen))
          || (tgrey::older_than(timeout, lastseen) && !cleared)) {
         db.store(key, tgrey::join_fields(::time(0), false));
-        tgrey::log << "new: " << req.to_key(" / ", v4mask, v6mask);
+        tgrey::log << "[new] " << req.to_key(" / ", v4mask, v6mask);
         std::cout << tgrey::policy_response::service_unavailable;
       }
 
@@ -154,13 +154,13 @@ int main(int argc, const char* argv[]) {
       else if(   cleared
               || tgrey::older_than(delay, lastseen)) {
         // db.store(key, tgrey::client_info(true));
-        tgrey::log << "ok: " << req.to_key(" / ", v4mask, v6mask);
+        tgrey::log << "[ok] " << req.to_key(" / ", v4mask, v6mask);
         std::cout << tgrey::policy_response::dunno;
       }
 
       // do not allow to pass and don't change database otherwise
       else {
-        tgrey::log << "wait: " << req.to_key(" / ", v4mask, v6mask);
+        tgrey::log << "[wait] " << req.to_key(" / ", v4mask, v6mask);
         std::cout << tgrey::policy_response::service_unavailable;
       }
     }

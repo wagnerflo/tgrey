@@ -12,15 +12,15 @@ libtgrey_a_CPPFLAGS = $(libtdb_CFLAGS)
 # the actual output binaries to be installed by the package
 #
 libexec_PROGRAMS = tgreylist
-#sbin_PROGRAMS = tgreyclean
+sbin_PROGRAMS = tgreyclean
 
 tgreylist_SOURCES = src/tgreylist.cc
 tgreylist_CPPFLAGS = $(libtdb_CFLAGS) -DCONFIG_TGREY_DB=\"$(TGREY_DB)\"
 tgreylist_LDADD = $(libtdb_LIBS) libtgrey.a
 
-#tgreyclean_SOURCES = src/tgreyclean.cc
-#tgreyclean_CPPFLAGS = $(libtdb_CFLAGS) -DCONFIG_TGREY_DB=\"$(TGREY_DB)\"
-#tgreyclean_LDADD = $(libtdb_LIBS) libtgrey.a
+tgreyclean_SOURCES = src/tgreyclean.cc
+tgreyclean_CPPFLAGS = $(libtdb_CFLAGS) -DCONFIG_TGREY_DB=\"$(TGREY_DB)\"
+tgreyclean_LDADD = $(libtdb_LIBS) libtgrey.a
 
 # man pages to install
 #

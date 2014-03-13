@@ -17,6 +17,13 @@
 namespace tgrey
 {
   struct db_data;
+  class database;
+
+  class db_visitor {
+    public:
+      virtual int
+      visit(database&, const std::string&, const std::string&) = 0;
+  };
 
   class database {
     public:
@@ -24,8 +31,10 @@ namespace tgrey
       ~database();
 
       void open();
-      const bool fetch (const std::string&, std::string&) const;
-      const void store(const std::string&, const std::string&);
+      bool fetch (const std::string&, std::string&);
+      void store(const std::string&, const std::string&);
+      void remove(const std::string&);
+      void traverse(db_visitor&);
 
     protected:
       const std::string filename;
