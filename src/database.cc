@@ -19,7 +19,7 @@
 #include "database.hh"
 
 struct tgrey::db_data {
-    ::tdb_context* ctx;
+    TDB_CONTEXT* ctx;
 };
 
 TDB_DATA from_string(const std::string& data) {
@@ -47,7 +47,7 @@ void tgrey::database::open() {
   if(data->ctx)
     return;
 
-  data->ctx = tdb_open(
+  data->ctx = ::tdb_open(
      filename.c_str(), 0, TDB_DEFAULT, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
   if(!data->ctx) {
@@ -62,7 +62,7 @@ tgrey::database::fetch(const std::string& key, std::string& val) const {
   if(!data->ctx)
     throw std::runtime_error("Trying to fetch from unopened TDB database.");
 
-  TDB_DATA value = tdb_fetch(data->ctx, from_string(key));
+  TDB_DATA value = ::tdb_fetch(data->ctx, from_string(key));
 
   if(!value.dptr)
     return false;
@@ -75,11 +75,10 @@ tgrey::database::fetch(const std::string& key, std::string& val) const {
 const void tgrey::database::store(
                          const std::string& key, const std::string& value) {
   if(!data->ctx)
-    throw std::runtime_error("Trying to fetch from unopened TDB database.");
+    throw std::runtime_error("Trying to store to unopened TDB database.");
 
   if(::tdb_store(data->ctx,
-                 from_string(key), from_string(value), TDB_REPLACE)) {
+                 from_string(key), from_string(value), TDB_REPLACE))
     throw std::runtime_error(std::string("Error storing to TDB: ") +
                              std::string(::tdb_errorstr(data->ctx)));
-  }
 }

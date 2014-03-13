@@ -11,7 +11,7 @@ libtgrey_a_CPPFLAGS = $(libtdb_CFLAGS)
 
 # the actual output binaries to be installed by the package
 #
-pkglibexec_PROGRAMS = tgreylist
+libexec_PROGRAMS = tgreylist
 #sbin_PROGRAMS = tgreyclean
 
 tgreylist_SOURCES = src/tgreylist.cc
