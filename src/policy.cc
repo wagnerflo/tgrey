@@ -19,6 +19,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <sys/socket.h>
 
 #include "policy.hh"
 #include "misc.hh"
