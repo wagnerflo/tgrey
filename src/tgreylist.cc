@@ -14,9 +14,7 @@
 #include "ext/slo.hh"
 #include "ext/propa.hh"
 
-#include "client.hh"
-#include "cmdline.hh"
-#include "errors.hh"
+#include "misc.hh"
 #include "database.hh"
 #include "logging.hh"
 #include "policy.hh"
@@ -49,9 +47,9 @@ int main(int argc, const char* argv[]) {
 
   // variables with default values for the commandline options
   std::string   database   = CONFIG_TGREY_DB;
-  unsigned int  delay      =            5 * 60;
-  unsigned int  timeout    =  7 * 24 * 60 * 60;
-  unsigned int  lifetime   = 90 * 24 * 60 * 60;
+  unsigned int  delay      = tgrey::convert_timespan("5m");
+  unsigned int  timeout    = tgrey::convert_timespan("7d");
+  unsigned int  lifetime   = tgrey::convert_timespan("90d");
   unsigned int  v4mask     = 32;
   unsigned int  v6mask     = 128;
   bool          help       = false;
@@ -97,8 +95,7 @@ int main(int argc, const char* argv[]) {
     // at this point we do not know if the log-to-stderr flag has even
     // been parsed at all so we use with_term to select the destination
     tgrey::log.add_pipe(with_term ? slo::stderr : tgrey::syslog_stage);
-    tgrey::log.msg_level(slo::crit);
-    tgrey::log << "Error parsing commandline.";
+    tgrey::log << slo::crit << "Error parsing commandline.";
     return 1;
   }
 
@@ -108,7 +105,10 @@ int main(int argc, const char* argv[]) {
   }
 
   // set up logging
-  tgrey::log.add_pipe(slo::min_level(slo::info) | tgrey::syslog_stage);
+  tgrey::log.msg_level(slo::info);
+  tgrey::log.add_pipe(
+      slo::min_level(slo::info) |
+      (log2stderr ? slo::stderr : tgrey::syslog_stage));
 
   // create a database object; this will not try to open it
   tgrey::database db(database);
@@ -117,67 +117,62 @@ int main(int argc, const char* argv[]) {
   while(std::cin) {
     try {
       // try to parse the request
-      const tgrey::request req(std::cin);
-
-      // verify that we got an request of appropriate type
-      try {
-        if(req["request"] != "smtpd_access_policy")
-          throw std::runtime_error("request != smtpd_access_policy");
-      }
-      // if there is not even a request attribute do not bother to answer
-      // since our reply would probably not be understood
-      catch(const tgrey::key_error& err) {
-        continue;
-      }
-
-      // turn request into triplet
-      const tgrey::triplet tri(req, v4mask, v6mask);
+      const tgrey::policy_request req(std::cin);
 
       // this is an noop if the database is already open, otherwise it
       // tries to open it; might throw
       db.open();
 
-      // turn the triplet into a string to be used as a key for db access
-      std::string key(tri);
+      bool exists, cleared;
+      std::string key, val;
+      int64_t lastseen;
 
       // try to get data associated with triplet from database
-      try {
-        const tgrey::client_info info(db.fetch(key));
+      key = req.to_key(v4mask, v6mask);
+      exists = db.fetch(key, val);
 
-        // if the entry has expired reset it by doing as if it didn't
-        // exist; an entry is expired if either it is older than lifetime
-        // or otherwise if it is older than timeout and at the same time
-        // has not been allowed to pass
-        if(info.older_than(lifetime) ||
-           (info.older_than(timeout) && !info.passed))
-          throw tgrey::key_error(key);
+      // parse database entry
+      if(exists)
+        tgrey::fetch_fields(val, lastseen, cleared);
 
-        // if allowed to pass mail or last try was longer than delay ago,
-        // then update last_seen in database and allow mail through
-        if(info.passed || info.older_than(delay)) {
-          db.store(key, tgrey::client_info(true));
-          std::cout << tgrey::response::dunno;
-        }
-        // not yet allowed to pass mails; do not update last_seen
-        else {
-          std::cout << tgrey::response::service_unavailable;
-        }
+      // create a fresh database entry if:
+      //  - either there is none yet
+      //  - or if the existing one is expired, meaning that it is:
+      //    + either older than lifetime
+      //    + or older than timeout and has not yet been cleared
+      if(   (!exists)
+         || (tgrey::older_than(lifetime, lastseen))
+         || (tgrey::older_than(timeout, lastseen) && !cleared)) {
+        db.store(key, tgrey::join_fields(::time(0), false));
+        tgrey::log << "new: " << req.to_key(" / ", v4mask, v6mask);
+        std::cout << tgrey::policy_response::service_unavailable;
       }
-      // no entry in the database: make a new one and return the
-      // service unavailable message
-      catch(const tgrey::key_error& err) {
-        db.store(key, tgrey::client_info());
-        std::cout << tgrey::response::service_unavailable;
+
+      // set database entry to cleared and update lastseen if:
+      //  - either entry is cleared already
+      //  - or the last delivery attempt was longer than delay ago
+      else if(   cleared
+              || tgrey::older_than(delay, lastseen)) {
+        // db.store(key, tgrey::client_info(true));
+        tgrey::log << "ok: " << req.to_key(" / ", v4mask, v6mask);
+        std::cout << tgrey::policy_response::dunno;
+      }
+
+      // do not allow to pass and don't change database otherwise
+      else {
+        tgrey::log << "wait: " << req.to_key(" / ", v4mask, v6mask);
+        std::cout << tgrey::policy_response::service_unavailable;
       }
     }
     // if there was any kind of unexpected error, make sure this does
     // not impact mail delivery by answering with dunno
     catch(const std::exception& err) {
-      std::cerr << err.what() << std::endl;
-      std::cout << tgrey::response::dunno;
+      tgrey::log << slo::error << err.what();
+      std::cout << tgrey::policy_response::dunno;
     }
     catch(...) {
-      std::cout << tgrey::response::dunno;
+      tgrey::log << slo::error << "Unknown error.";
+      std::cout << tgrey::policy_response::dunno;
     }
   }
 

@@ -12,24 +12,24 @@
 #define TGREY_DATABASE_HH
 
 #include <string>
-#include <vector>
-#include <sys/types.h>
-#include <tdb.h>
+#include <memory>
 
 namespace tgrey
 {
+  struct db_data;
+
   class database {
     public:
       database(const std::string&);
       ~database();
 
       void open();
-      const std::string fetch (const std::string&) const;
+      const bool fetch (const std::string&, std::string&) const;
       const void store(const std::string&, const std::string&);
 
     protected:
       const std::string filename;
-      ::tdb_context* ctx;
+      std::auto_ptr<struct db_data> data;
   };
 }
 

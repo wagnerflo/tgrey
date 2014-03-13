@@ -11,37 +11,40 @@
 #ifndef TGREY_POLICY_HH
 #define TGREY_POLICY_HH
 
-#include <string>
-#include <map>
 #include <istream>
+#include <string>
 
 namespace tgrey
 {
-  class request {
+  class policy_request {
     public:
-      request(std::istream&);
-      const std::string& operator[] (const std::string&) const;
+      policy_request(std::istream&);
+      const std::string to_key(const std::string&,
+                               const unsigned int,
+                               const unsigned int) const;
+      const std::string to_key(const unsigned int,
+                               const unsigned int) const;
 
     protected:
-      typedef std::map<const std::string,const std::string> attrmap;
-      typedef std::pair<const std::string,const std::string> attrpair;
-
-      attrmap attrs;
+      std::string sender;
+      std::string recipient;
+      std::string client_name;
+      std::string client_address;
   };
 
-  class response {
+  class policy_response {
     public:
-      static const response dunno;
-      static const response service_unavailable;
+      static const policy_response dunno;
+      static const policy_response service_unavailable;
 
       const std::string action;
       const std::string text;
 
-      response(const std::string&, const std::string&);
-      response(const std::string&);
+      policy_response(const std::string&, const std::string&);
+      policy_response(const std::string&);
   };
 
-  std::ostream& operator<< (std::ostream&, const response&);
+  std::ostream& operator<< (std::ostream&, const policy_response&);
 }
 
 #endif /* TGREY_POLICY_HH */

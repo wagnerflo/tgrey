@@ -8,14 +8,6 @@
   included file COPYING.
  * * */
 
-#ifndef TGREY_CMDLINE_HH
-#define TGREY_CMDLINE_HH
-
-#include <string>
-
-namespace tgrey
-{
-  unsigned int convert_timespan(const std::string&);
+int main(int argc, const char* argv[]) {
+  return 0;
 }
-
-#endif /* TGREY_CMDLINE_HH */

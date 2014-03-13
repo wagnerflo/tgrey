@@ -5,8 +5,8 @@ AM_CXXFLAGS = -Wall -Werror
 # unittests
 #
 noinst_LIBRARIES = libtgrey.a
-libtgrey_a_SOURCES = src/policy.cc src/database.cc src/client.cc \
-                     src/cmdline.cc src/logging.cc
+libtgrey_a_SOURCES = src/policy.cc src/database.cc \
+                     src/misc.cc src/logging.cc
 libtgrey_a_CPPFLAGS = $(libtdb_CFLAGS)
 
 # the actual output binaries to be installed by the package
@@ -31,6 +31,7 @@ tgreylist_LDADD = $(libtdb_LIBS) libtgrey.a
 #
 check_PROGRAMS = tests/mktriplet
 tests_mktriplet_SOURCES = tests/mktriplet.cc
+tests_mktriplet_CPPFLAGS = -Isrc
 tests_mktriplet_LDADD = libtgrey.a
 
 # define the unit and system tests to run
