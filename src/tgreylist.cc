@@ -113,8 +113,8 @@ int main(int argc, const char* argv[]) {
   // create a database object; this will not try to open it
   tgrey::database db(database);
 
-  // run in an infinite loop until either stdin gets closed or an signal
-  while(std::cin) {
+  // run in an infinite loop
+  while(true) {
     try {
       // try to parse the request
       const tgrey::policy_request req(std::cin);
@@ -144,7 +144,7 @@ int main(int argc, const char* argv[]) {
          || (tgrey::older_than(lifetime, lastseen))
          || (tgrey::older_than(timeout, lastseen) && !cleared)) {
         db.store(key, tgrey::join_fields(::time(0), false));
-        tgrey::log << "[new] " << req.to_key(" / ", v4mask, v6mask);
+        tgrey::log << "new ( " << req.to_key(" / ", v4mask, v6mask) << " )";
         std::cout << tgrey::policy_response::service_unavailable;
       }
 
@@ -154,25 +154,20 @@ int main(int argc, const char* argv[]) {
       else if(   cleared
               || tgrey::older_than(delay, lastseen)) {
         // db.store(key, tgrey::client_info(true));
-        tgrey::log << "[ok] " << req.to_key(" / ", v4mask, v6mask);
+        tgrey::log << "ok ( " << req.to_key(" / ", v4mask, v6mask) << " )";
         std::cout << tgrey::policy_response::dunno;
       }
 
       // do not allow to pass and don't change database otherwise
       else {
-        tgrey::log << "[wait] " << req.to_key(" / ", v4mask, v6mask);
+        tgrey::log << "wait ( " << req.to_key(" / ", v4mask, v6mask) << " )";
         std::cout << tgrey::policy_response::service_unavailable;
       }
     }
     // if there was any kind of unexpected error, make sure this does
     // not impact mail delivery by answering with dunno
     catch(const std::exception& err) {
-      tgrey::log << slo::error << err.what();
-      std::cout << tgrey::policy_response::dunno;
-    }
-    catch(...) {
-      tgrey::log << slo::error << "Unknown error.";
-      std::cout << tgrey::policy_response::dunno;
+      tgrey::log << slo::error << err.what(); break;
     }
   }
 

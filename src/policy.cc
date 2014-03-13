@@ -65,6 +65,9 @@ tgrey::policy_request::policy_request(std::istream& inp) {
     }
   }
 
+  if(inp.eof())
+    throw std::runtime_error("Input stream closed.");
+
   if(request != "smtpd_access_policy")
     throw std::runtime_error("Policy request is not smtpd_access_policy.");
 
