@@ -71,9 +71,6 @@ tgrey::policy_request::policy_request(std::istream& inp) {
   if(request != "smtpd_access_policy")
     throw std::runtime_error("Policy request is not smtpd_access_policy.");
 
-  if(sender.empty())
-    throw std::runtime_error("Policy request missing sender.");
-
   if(recipient.empty())
     throw std::runtime_error("Policy request missing recipient.");
 
