@@ -248,7 +248,7 @@ namespace propa
 
     public:
       flagopt(T& ref) : _ref(ref), _max(0) { /* empty */ }
-      flagopt<T>& max(const T& max) { _max = max; }
+      flagopt<T>& max(const T& max) { _max = max; return *this; }
       virtual bool expects_value() const { return false; }
       virtual std::string help() const { return _help; }
 
