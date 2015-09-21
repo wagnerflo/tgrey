@@ -236,9 +236,14 @@ namespace propa
       std::string _help;
 
     private:
+      void _set(bool const*) { _ref = true; }
+      void _set(...)         { _ref++; }
+
       virtual void set(const std::string& value) {
-        if(++_ref > _max && _max)
+        if(_max && _ref >= _max)
           throw std::runtime_error("too often");
+
+        _set((T const*) 0);
       }
 
     public:
