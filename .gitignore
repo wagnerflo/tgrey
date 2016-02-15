@@ -1,0 +1,14 @@
+/aclocal.m4
+/autom4te.cache
+/config.log
+/config.status
+/configure
+/libtgrey.a
+/Makefile
+/Makefile.in
+/src/.deps
+/src/.dirstamp
+/src/*.o
+/tests/.deps
+/tgreyclean
+/tgreylist
