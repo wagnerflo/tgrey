@@ -153,7 +153,7 @@ int main(int argc, const char* argv[]) {
       //  - or the last delivery attempt was longer than delay ago
       else if(   cleared
               || tgrey::older_than(delay, lastseen)) {
-        // db.store(key, tgrey::client_info(true));
+        db.store(key, tgrey::join_fields(::time(0), true));
         tgrey::log << "ok ( " << req.to_key(" / ", v4mask, v6mask) << " )";
         std::cout << tgrey::policy_response::dunno;
       }
