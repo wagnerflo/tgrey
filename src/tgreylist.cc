@@ -95,7 +95,7 @@ int main(int argc, const char* argv[]) {
     // at this point we do not know if the log-to-stderr flag has even
     // been parsed at all so we use with_term to select the destination
     tgrey::log.add_pipe(with_term ? slo::stderr : tgrey::syslog_stage);
-    tgrey::log << slo::crit << "Error parsing commandline.";
+    tgrey::log << slo::crit << "error parsing commandline";
     return 1;
   }
 

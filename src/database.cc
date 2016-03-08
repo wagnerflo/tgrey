@@ -53,14 +53,14 @@ void tgrey::database::open() {
 
   if(!data->ctx) {
     int errnum = errno;
-    throw std::runtime_error(std::string("Error opening TDB: ") +
+    throw std::runtime_error(std::string("error opening TDB: ") +
                              std::string(strerror(errnum)));
   }
 }
 
 bool tgrey::database::fetch(const std::string& key, std::string& val) {
   if(!data->ctx)
-    throw std::runtime_error("Trying to fetch from unopened TDB database.");
+    throw std::runtime_error("trying to fetch from unopened TDB database");
 
   TDB_DATA value = ::tdb_fetch(data->ctx, from_string(key));
 
@@ -74,20 +74,20 @@ bool tgrey::database::fetch(const std::string& key, std::string& val) {
 
 void tgrey::database::store(const std::string& key, const std::string& val) {
   if(!data->ctx)
-    throw std::runtime_error("Trying to store to unopened TDB database.");
+    throw std::runtime_error("trying to store to unopened TDB database");
 
   if(::tdb_store(data->ctx,
                  from_string(key), from_string(val), TDB_REPLACE))
-    throw std::runtime_error(std::string("Error storing to TDB: ") +
+    throw std::runtime_error(std::string("error storing to TDB: ") +
                              std::string(::tdb_errorstr(data->ctx)));
 }
 
 void tgrey::database::remove(const std::string& key) {
   if(!data->ctx)
-    throw std::runtime_error("Trying to delete from unopened TDB database.");
+    throw std::runtime_error("trying to delete from unopened TDB database");
 
   if(::tdb_delete(data->ctx, from_string(key)))
-    throw std::runtime_error(std::string("Error deleting from TDB: ") +
+    throw std::runtime_error(std::string("error deleting from TDB: ") +
                              std::string(::tdb_errorstr(data->ctx)));
 }
 
@@ -107,7 +107,7 @@ traverse_helper(TDB_CONTEXT* tdb, TDB_DATA key, TDB_DATA val, void* state) {
 
 void tgrey::database::traverse(db_visitor& visitor) {
   if(!data->ctx)
-    throw std::runtime_error("Trying to traverse unopened TDB database.");
+    throw std::runtime_error("trying to traverse unopened TDB database");
 
   struct traverse_callback cb = { *this, visitor };
   ::tdb_traverse(data->ctx, traverse_helper, &cb);

@@ -50,7 +50,7 @@ std::string tgrey::lowercase(const std::string& str) {
  ** ** **/
 inline void assert_char(std::istream& is, const char& c) {
   if(c != is.get())
-    throw std::runtime_error("Invalid field delimiter.");
+    throw std::runtime_error("invalid field delimiter");
 }
 
 template<typename T> void fetch_field(std::istream& is, T& val) {

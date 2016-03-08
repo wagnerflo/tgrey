@@ -66,17 +66,17 @@ tgrey::policy_request::policy_request(std::istream& inp) {
   }
 
   if(inp.eof())
-    throw std::runtime_error("Input stream closed.");
+    throw std::runtime_error("input stream closed");
 
   if(request != "smtpd_access_policy")
-    throw std::runtime_error("Policy request is not smtpd_access_policy.");
+    throw std::runtime_error("policy request is not smtpd_access_policy");
 
   if(recipient.empty())
-    throw std::runtime_error("Policy request missing recipient.");
+    throw std::runtime_error("policy request missing recipient");
 
   if(client_name.empty() && client_address.empty())
     throw std::runtime_error(
-              "Policy request missing known client_name and client_address.");
+              "policy request missing known client_name and client_address");
 }
 
 const std::string
@@ -153,7 +153,7 @@ inline const std::string mask_addr(
 
   // validate the string representation and detect whether it is v4 or v6
   if(getaddrinfo(ip.c_str(), 0, &hints, &result) || !result)
-    throw std::runtime_error("Not a valid IP address: " + ip + ".");
+    throw std::runtime_error("not a valid IP address: " + ip);
 
   int af = result->ai_family;
   freeaddrinfo(result);
